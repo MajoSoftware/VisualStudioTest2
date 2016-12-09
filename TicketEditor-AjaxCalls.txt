@@ -1,0 +1,1307 @@
+
+
+<%@ Control Language="vb" AutoEventWireup="false" CodeBehind="TicketEditor.ascx.vb" Inherits="Rabo.AocFlow.Website.TicketEditor" %>
+
+<style type ="text/css" >
+
+    .SuppliersDivStyle 
+    {
+        border: solid; 
+        border-color: #808080; 
+        border-width: thin; 
+        background-color: #E6E6E6;
+        margin-top: 6px;
+        margin-bottom: 5px;
+        padding-top: 0px;
+        padding-bottom: 5px;
+        width: 500px;
+    }
+
+    /* The generated id for the results displayed for the bank autocomplete */
+    #mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_aceAutoComplete_completionListElem
+    {
+        /* The inline style is overwritten when a new result is displayed, therefore !important  */
+        width: 500px !important;
+    }
+    
+    /* The generated id for the results displayed for the requester autocomplete */
+    #mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_aceAutoComplete_completionListElem
+    {
+        /* The inline style is overwritten when a new result is displayed, therefore !important  */
+        width: 500px !important;
+    }
+
+
+    /* The generated id for the results displayed for the supplier autocomplete */
+    #mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_aceAutoComplete_completionListElem
+    {
+        /* The inline style is overwritten when a new result is displayed, therefore !important  */
+        width: 500px !important;
+    }
+
+</style>
+
+<%-- Ticket Generic fields --%>
+<aoc:AocInputFieldPanel ID="CloseTicketImmediatelyPanel" runat="server" AssociatedControlID="CloseTicketImmediately"
+    LabelText="Direct sluiten" FieldName="TicketCloseTicketImmediately" >
+    <asp:CheckBox ID="CloseTicketImmediately" runat="server" AutoPostBack="true" />
+</aoc:AocInputFieldPanel>
+
+<%-- Local Bank Ticket field --%>
+<aoc:AocInputFieldPanel ID="BankFieldPanel" runat="server" AssociatedControlID="BankAutoComplete"
+    LabelText="Bank" ShowErrorMessage="true" FieldName="LocalBankTicketBank" >
+    <aoc:AocAutoComplete runat="server" ID="BankAutoComplete" ServiceMethod="GetBanks" UseContextKey="true"
+        ContextKey="False" Width="300px" AutoPostback="true" Required="True" ErrorMessage="De bankcode is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<%-- Ticket Generic fields --%>
+<aoc:AocInputFieldPanel ID="TicketTypeFieldPanel" runat="server" AssociatedControlID="TicketTypeDropDown"
+    LabelText="Type" FieldName="TicketType" ShowErrorMessage="true">
+    <asp:ObjectDataSource runat="server" ID="TicketTypeDataSource"
+        TypeName="Rabo.AocFlow.Website.TicketDataSource"
+        SelectMethod="GetTicketTypes" EnablePaging="false"></asp:ObjectDataSource>
+
+    <pc4:RaboDropDownList runat="server" ID="TicketTypeDropDown" DataSourceID="TicketTypeDataSource"
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput">
+    </pc4:RaboDropDownList>
+    <pc4:RaboRequiredFieldValidator ID="TicketTypeDropDownValidator" runat="server" ControlToValidate="TicketTypeDropDown"
+        Text="Het tickettype is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<script type="text/javascript">
+    var requesterAutoCompleteClientId = '<%= RequesterAutoComplete.ClientID %>';
+    var otherRoleId = '<%= OtherRoleId %>';
+    var otherRoleName = '<%= OtherRoleName %>';
+
+    var autoCompleteServiceUrl = '<%= ResolveUrl("~/Services/AutoCompleteService.svc") %>';
+    var editInstructionpageUrl = '<%= ResolveUrl(EditInstructionPageUrl) %>';
+
+</script>
+
+<%-- Supplier Ticket fields --%>
+<% If (SupplierTicketSupplierIdPanel.Visible) Then %>
+ <div id="suppliersDiv" class="SuppliersDivStyle" >
+
+<% End If %>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketSupplierIdPanel" runat="server" AssociatedControlID="SupplierTicketSupplierIdAutoComplete" 
+    LabelText="Leverancier" ShowErrorMessage="true" FieldName="SupplierTicketSupplierId" >
+    <aoc:AocAutoComplete runat="server" ID="SupplierTicketSupplierIdAutoComplete" ServiceMethod="GetSuppliers" UseContextKey="true"
+        ContextKey="False" Width="300px" AutoPostback="False" Required="True" ErrorMessage="Leverancier is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketSupplierBankAccountNumberPanel" runat="server" AssociatedControlID="SupplierTicketSupplierBankAccountNumberTextBox" LabelText="Bankrekening nummer" ShowErrorMessage="true" FieldName="SupplierTicketSupplierBankAccountNumber">
+    <pc4:RaboTextBox runat="server" ID="SupplierTicketSupplierBankAccountNumberTextBox" MaxLength="30" CssClass="InstructionInput" disabled="disabled" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketSupplierNamePanel" runat="server" AssociatedControlID="SupplierTicketSupplierNameTextBox" LabelText="Naam" ShowErrorMessage="true" FieldName="SupplierTicketSupplierName">
+    <pc4:RaboTextBox runat="server" ID="SupplierTicketSupplierNameTextBox" MaxLength="30" CssClass="InstructionInput" disabled="disabled" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketCreditorNumberPanel" runat="server" AssociatedControlID="SupplierTicketCreditorNumberTextBox" LabelText="Crediteur nummer" ShowErrorMessage="true" FieldName="SupplierTicketCreditorNumber">
+    <pc4:RaboTextBox runat="server" ID="SupplierTicketCreditorNumberTextBox" MaxLength="30" CssClass="InstructionInput" disabled="disabled" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketSupplierEmailPanel" runat="server" AssociatedControlID="SupplierTicketSupplierEmailTextBox" LabelText="E-mail" ShowErrorMessage="true" FieldName="SupplierTicketSupplierEmail">
+    <pc4:RaboTextBox runat="server" ID="SupplierTicketSupplierEmailTextBox" MaxLength="30" CssClass="InstructionInput" disabled="disabled" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SupplierTicketSupplierPhoneNumberPanel" runat="server" AssociatedControlID="SupplierTicketSupplierPhoneNumberTextBox" LabelText="Telefoon" ShowErrorMessage="true" FieldName="SupplierTicketSupplierPhoneNumber">
+    <pc4:RaboTextBox runat="server" ID="SupplierTicketSupplierPhoneNumberTextBox" MaxLength="30" CssClass="InstructionInput" disabled="disabled" />
+</aoc:AocInputFieldPanel>
+
+<% If (SupplierTicketSupplierIdPanel.Visible) Then %>
+</div>
+<% End if %>
+
+
+<%-- Ticket Generic fields --%>
+<aoc:AocInputFieldPanel ID="TicketRequesterFieldPanel" runat="server" AssociatedControlID="RequesterAutoComplete"
+    LabelText="Aanvrager" FieldName="TicketRequester">
+    <aoc:AocAutoComplete runat="server" ID="RequesterAutoComplete" ServiceMethod="GetApplicationActiveDirectoryUsers" UseContextKey="true"
+        ContextKey="|false" Width="300px" AutoPostback="false" Required="false" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="RequesterRoleFieldPanel" runat="server" AssociatedControlID="RequesterRoleDropDown"
+    LabelText="Aanvrager rol" FieldName="TicketRequesterRole">
+
+    <asp:ObjectDataSource runat="server" ID="RequesterRoleDataSource"
+        TypeName="Rabo.AocFlow.Website.RoleDataSource"
+        SelectMethod="GetPersonalUserRolesForTicket" EnablePaging="false"></asp:ObjectDataSource>
+
+    <pc4:RaboDropDownList runat="server" ID="RequesterRoleDropDown" 
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput" AutoPostBack="false">
+    </pc4:RaboDropDownList>
+    <!-- Value for RequesterRoleDropDown must be stored explicit, because it can be filled again and again on the clientside (and thus no serverside viewstate/selected item of these new items)  -->
+    <asp:HiddenField ID="HiddenRequesterRoleDropDownValue" runat="server" Value="0" />
+
+    <pc4:RaboRequiredFieldValidator ID="RequesterRoleValidator" runat="server" ControlToValidate="RequesterRoleDropDown"
+        Text="De aanvrager rol is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="RequesterPhoneFieldPanel" runat="server" AssociatedControlID="RequesterPhoneTextBox"
+    LabelText="Aanvrager telefoonnr." ShowErrorMessage="true" FieldName="TicketPhonenumber">
+    <pc4:RaboTextBox runat="server" ID="RequesterPhoneTextBox" MaxLength="16" CssClass="InstructionInput" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="TicketChannelFieldPanel" runat="server" AssociatedControlID="TicketChannelDropDown"
+    LabelText="Kanaal" FieldName="TicketChannel" ShowErrorMessage="true">
+
+    <pc4:RaboDropDownList runat="server" ID="TicketChannelDropDown" 
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput">
+    </pc4:RaboDropDownList>
+
+    <pc4:RaboCustomValidator ID="TicketChannelValidator" runat="server" ClientValidationFunction="ValidateTicketChannel" Text="Het ticketkanaal is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="InitiatorFieldPanel" runat="server" AssociatedControlID="InitiatorAutoComplete"
+    LabelText="Geregistreerd door" FieldName="TicketInitiator">
+    <aoc:AocAutoComplete runat="server" ID="InitiatorAutoComplete" ServiceMethod="GetApplicationUsers" UseContextKey="false" AutoPostback="false" 
+        Width="300px" Required="true" ErrorMessage="Het veld 'geregistreerd door' is verplicht."  />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="InitiatorRoleFieldPanel" runat="server" AssociatedControlID="InitiatorRoleDropDown"
+    LabelText="Geregistreerd door rol" FieldName="TicketInitiatorRole">
+
+    <asp:ObjectDataSource runat="server" ID="InitiatorRoleDataSource"
+        TypeName="Rabo.AocFlow.Website.RoleDataSource"
+        SelectMethod="GetPersonalUserRolesForTicket" EnablePaging="false"></asp:ObjectDataSource>
+
+    <pc4:RaboDropDownList runat="server" ID="InitiatorRoleDropDown" DataSourceID="InitiatorRoleDataSource"
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput" AutoPostBack="false">
+    </pc4:RaboDropDownList>
+    <pc4:RaboRequiredFieldValidator ID="InitiatorRoleValidator" runat="server" ControlToValidate="InitiatorRoleDropDown"
+        Text="De 'geregistreerd door' rol is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="TicketStatusFieldPanel" runat="server" LabelText="Status"
+    AssociatedControlID="TicketStatusDropDown" FieldName="TicketStatus">
+    <asp:ObjectDataSource runat="server" ID="TicketStatusDataSource"
+        TypeName="Rabo.AocFlow.Website.TicketDataSource"
+        SelectMethod="GetTicketStatuses" EnablePaging="false"></asp:ObjectDataSource>
+
+    <pc4:RaboDropDownList runat="server" ID="TicketStatusDropDown" DataSourceID="TicketStatusDataSource"
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput" AutoPostBack="false">
+    </pc4:RaboDropDownList>
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="TicketSubjectInputFieldPanel" runat="server" LabelText="Onderwerp"
+    AssociatedControlID="TicketSubjectInput" FieldName="TicketSubject">
+    <pc4:RaboDropDownTreeView ID="TicketSubjectInput" runat="server" AutoPostBack="true" OnSelectedNodeChanged="TicketSubjectInput_SelectionChanged" DefaultText="-Selecteer-" />
+    
+    <pc4:RaboCustomValidator ID="TicketSubjectValidator" runat="server" ClientValidationFunction="ValidateTicketSubject" Text="Het onderwerp is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<%-- Supplier Ticket fields --%>
+<aoc:AocInputFieldPanel ID="SupplierTicketSubSubjectPanel" runat="server" LabelText="Sub Onderwerp"
+    AssociatedControlID="SupplierTicketSubSubjectRaboDropDownList" FieldName="SupplierTicketSubSubject">
+
+    <pc4:RaboDropDownList runat="server" ID="SupplierTicketSubSubjectRaboDropDownList" DataTextField="Name" DataValueField="ID" CssClass="InstructionInput">
+    </pc4:RaboDropDownList>
+
+    <pc4:RaboRequiredFieldValidator ID="SupplierTicketSubSubjectRequiredFieldValidator" runat="server" ControlToValidate="SupplierTicketSubSubjectRaboDropDownList" Text="Het subonderwerp is verplicht" />
+</aoc:AocInputFieldPanel>
+
+
+<%-- Local Bank Ticket fields --%>
+<aoc:AocInputFieldPanel ID="InstructionFieldPanel" runat="server" AssociatedControlID="InstructionAutoComplete"
+    LabelText="Opdracht #" FieldName="TicketInstruction">
+    <aoc:AocAutoComplete runat="server" ID="InstructionAutoComplete" ServiceMethod="GetInstructions" UseContextKey="true"
+        Width="300px" AutoPostback="true" Required="False" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="InstructionUrlFieldPanel" runat="server" AssociatedControlID="TicketInstructionUrlButton"
+    LabelText="Opdracht link" FieldName="TicketInstructionUrl">
+    <asp:HyperLink ID="TicketInstructionUrlButton" runat="server" Target="_blank" CssClass="BLUlinkButton" Text="" />
+</aoc:AocInputFieldPanel>
+
+<%-- Generic Ticket fields --%>
+<aoc:AocInputFieldPanel ID="TicketTitleFieldPanel" runat="server" AssociatedControlID="TicketTitleTextBox"
+    LabelText="Melding titel" ShowErrorMessage="true" FieldName="TicketTitle">
+    <pc4:RaboTextBox runat="server" ID="TicketTitleTextBox" MaxLength="80" CssClass="InstructionInput" />
+    <pc4:RaboRequiredFieldValidator ID="TicketTitleTextBoxValidator" runat="server" ControlToValidate="TicketTitleTextBox"
+        Text="De melding titel is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="TicketDescriptionFieldPanel" runat="server" AssociatedControlID="TicketDescriptionTextBox"
+    LabelText="Melding" ShowErrorMessage="true" FieldName="TicketDescription">
+    <pc4:RaboTextBox runat="server" ID="TicketDescriptionTextBox" TextMode="MultiLine" CssClass="InstructionInput autoresize60-300" />
+
+    <pc4:RaboRequiredFieldValidator ID="TicketDescriptionValidator" runat="server" ControlToValidate="TicketDescriptionTextBox" 
+        Text="De melding is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="TicketSolutionFieldPanel" runat="server" AssociatedControlID="TicketSolutionTextBox"
+    LabelText="Oplossing" ShowErrorMessage="true" FieldName="TicketSolution">
+    <pc4:RaboTextBox runat="server" ID="TicketSolutionTextBox" TextMode="MultiLine" CssClass="InstructionInput expandable collapsed"  />
+
+    <pc4:RaboCustomValidator ID="TicketSolutionValidator" runat="server" ClientValidationFunction="ValidateTicketSolution" Text="De oplossing is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="HandlerFieldPanel" runat="server" AssociatedControlID="HandlerAutoComplete"
+    LabelText="Behandelaar" FieldName="TicketHandler">
+    <aoc:AocAutoComplete runat="server" ID="HandlerAutoComplete" ServiceMethod="GetApplicationUsers"
+        UseContextKey="false" Width="300px" Required="false" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="PriorityFieldPanel" runat="server" AssociatedControlID="PriorityDropDown"
+    LabelText="Prioriteit" FieldName="TicketPriority">
+    <asp:ObjectDataSource runat="server" ID="TicketPriorityDataSource"
+        TypeName="Rabo.AocFlow.Website.TicketDataSource"
+        SelectMethod="GetTicketPriorities" EnablePaging="false" />
+
+    <pc4:RaboDropDownList runat="server" ID="PriorityDropDown" DataSourceID="TicketPriorityDataSource"
+        DataTextField="Name" DataValueField="ID" CssClass="InstructionInput" AppendDataBoundItems="false" AutoPostBack="false" />
+    <pc4:RaboRequiredFieldValidator ID="PriorityDropDownValidator" runat="server" ControlToValidate="PriorityDropDown"
+        Text="De prioriteit is verplicht" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="ProposedSolutionDateFieldPanel" runat="server"
+    AssociatedControlID="ProposedSolutionDateTextBox" LabelText="Gewenste afhandeldatum" FieldName="TicketProposedSolutionDate">
+    <pc4:DateTextBox runat="server" ID="ProposedSolutionDateTextBox" CssClass="InstructionInput" Enabled="false" />
+</aoc:AocInputFieldPanel>
+
+<aoc:AocInputFieldPanel ID="SolutionDateFieldPanel" runat="server" AssociatedControlID="SolutionDateTextBox"
+    LabelText="Afhandeldatum" FieldName="TicketSolutionDate">
+    <pc4:DateTextBox runat="server" ID="SolutionDateTextBox" CssClass="InstructionInput" Enabled="false" />
+</aoc:AocInputFieldPanel>
+
+<%-- --------------------------------------------------------- --%>
+
+<script>
+    // Validation function for validating ticketsubject
+    function ValidateTicketSubject(source, arguments) {
+        var selectedText = $("span[id$='TicketSubjectInput_lblResult']").text().trim();
+        if (selectedText == '-Selecteer-') {
+            arguments.IsValid = false;
+        } else {
+            arguments.IsValid = true;
+        }
+    }
+    
+    // Validation function for validating channel
+    function ValidateTicketChannel(source, arguments) {
+        var selectedText = $("select[id$='TicketChannelDropDown']").find("option:selected").text().trim();
+        if (selectedText == '-Selecteer-') {
+            arguments.IsValid = false;
+        } else {
+            arguments.IsValid = true;
+        }
+    }
+
+    // If 'CloseTicketImmediately' checked -> field 'solutionText' id required
+    function ValidateTicketSolution(source, arguments) {
+        var solutionText = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionTextBox').val();
+        var closeImmediatelyChecked = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_CloseTicketImmediately').prop('checked');
+        if ((closeImmediatelyChecked) && (solutionText == ''))
+        {
+            arguments.IsValid = false;
+        }
+        else
+        {
+            arguments.IsValid = true;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------
+    // Variables for autocomplete (extension)functions
+    var oldBankAutocompleteOnItemSelected = null;
+    var oldSupplierAutocompleteOnItemSelected = null;
+    var oldRequesterAutocompleteOnItemSelected = null;
+
+
+    // Do this when document is full loaded
+    $(document).ready(function () {
+    
+        // ----------------------------------------------------------------------------
+        // Comment function below out when Portal Control RaboDropdownTreeview is fixed and deployed. Also, set AutoPostback property to false.
+        //
+        // Checkbox CloseTicketImmediately changed   
+        /*
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_CloseTicketImmediately').change(function ()
+        {
+            //clearFields();   // Keep all fields that were already filled in
+            
+            // If closeImmediately
+            if ($(this).is(":checked"))
+            {
+                var requesterRoleDropDown = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown');
+                requesterRoleDropDown.empty();
+                requesterRoleDropDown.append($("<option></option>").val(otherRoleId).text(otherRoleName));
+
+                SetTicketSolutionVisibility();
+                $('#mainContent_SaveButton').text('Direct sluiten');
+            }
+            else  // If not closeImmediately
+            {
+                // Fill RequesterRole DropDown
+                var requesterUserId = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_hfAutoComplete').val();
+                FillDropDown('mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown', 'GetRequesterRolesData', requesterUserId, '-Selecteer-', '');
+                SetTicketSolutionVisibility();
+                $('#mainContent_SaveButton').text('Indienen');
+            }
+            
+        });
+        */
+        
+        // ----------------------------------------------------------------------------
+        // Make extension / custom implementation to clientside selection code for autocomplete controls.
+        //
+        // Bank Autocomplete
+        if (typeof mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_AutocompleteOnItemSelected !== 'undefined')
+        {
+            oldBankAutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_AutocompleteOnItemSelected;
+            function mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_AutocompleteOnItemSelected_new(sender, e) {
+                mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRacDoPostBack = false;
+                oldBankAutocompleteOnItemSelected(sender, e);
+                SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_tbAutoComplete', '', '');
+            }
+            mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_AutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_AutocompleteOnItemSelected_new;
+        }
+        // ----------------------------------------------------------------------------
+        // Requester Autocomplete (new ticket)
+        if (typeof mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected !== 'undefined')
+        {
+            oldRequesterAutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected;
+            function mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected_new(sender, e) {
+                mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRacDoPostBack = false;
+                oldRequesterAutocompleteOnItemSelected(sender, e);
+
+                var closeImmediatelyChecked = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_CloseTicketImmediately').prop('checked');
+                if (!closeImmediatelyChecked) {
+                    var requesterUserId = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_hfAutoComplete').val();
+                    FillDropDown('mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown', 'GetRequesterRolesData', requesterUserId, '-Selecteer-', '');
+
+                    var selectedRequesterRoleValue = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').val();
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_HiddenRequesterRoleDropDownValue').val(selectedRequesterRoleValue);
+                }
+            }
+            mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected_new;
+        }
+        // ----------------------------------------------------------------------------
+
+        // Requester Autocomplete (wijzig ticket)
+        if (typeof mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected !== 'undefined') {
+            oldRequesterAutocompleteOnItemSelected = mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected;
+            function mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected_new(sender, e) {
+                mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRacDoPostBack = false;
+                oldRequesterAutocompleteOnItemSelected(sender, e);
+
+                var closeImmediatelyChecked = $('#mainContent_tabContainer_TicketPanel_TicketEditor_CloseTicketImmediately').prop('checked');
+                if (!closeImmediatelyChecked) {
+                    var requesterUserId = $('#mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_hfAutoComplete').val();
+                    FillDropDown('mainContent_tabContainer_TicketPanel_TicketEditor_RequesterRoleDropDown', 'GetRequesterRolesData', requesterUserId, '-Selecteer-', '');
+
+                    var selectedRequesterRoleValue = $('#mainContent_tabContainer_TicketPanel_TicketEditor_RequesterRoleDropDown').val();
+                    $('#mainContent_tabContainer_TicketPanel_TicketEditor_HiddenRequesterRoleDropDownValue').val(selectedRequesterRoleValue);
+                }
+            }
+            mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected = mainContent_tabContainer_TicketPanel_TicketEditor_RequesterAutoCompleteRac_AutocompleteOnItemSelected_new;
+        }
+        // ----------------------------------------------------------------------------
+
+        // Instruction Autocomplete
+        if (typeof mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_AutocompleteOnItemSelected !== 'undefined')
+        {
+            oldInstructionAutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_AutocompleteOnItemSelected;
+            function mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_AutocompleteOnItemSelected_new(sender, e) {
+                mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRacDoPostBack = false;
+                oldInstructionAutocompleteOnItemSelected(sender, e);
+
+                var instructionId = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_hfAutoComplete').val();
+                var instructionLinkElem = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketInstructionUrlButton');
+
+                if ((typeof instructionId !== 'undefined') && (instructionId != '') && (instructionLinkElem != null)) {
+                    editInstructionpageUrl = editInstructionpageUrl.replace('{0}', instructionId);
+                    instructionLinkElem.attr('href', editInstructionpageUrl);
+                    instructionLinkElem.text(instructionId);
+                }
+                else {
+                    instructionLinkElem.attr('href', '');
+                    instructionLinkElem.text('');
+                }
+
+            }
+            mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_AutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_AutocompleteOnItemSelected_new;
+        }
+        // ----------------------------------------------------------------------------
+        if (typeof mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_AutocompleteOnItemSelected !== 'undefined')
+        {
+            // Supplier Autocomplete
+            oldSupplierAutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_AutocompleteOnItemSelected;
+            function mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_AutocompleteOnItemSelected_new(sender, e) {
+                mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRacDoPostBack = false;
+                oldSupplierAutocompleteOnItemSelected(sender, e);
+                SetSupplierDetailInfo();
+            }
+            mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_AutocompleteOnItemSelected = mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_AutocompleteOnItemSelected_new;
+        }
+        // ----------------------------------------------------------------------------
+
+        // RequesterRoleDropDown change -> explicit store value, because it may be lost because refilled in clientside and thus no serverside viewstate/selected value
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').change(function () {
+            var selectedRequesterRoleValue = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').val();
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_HiddenRequesterRoleDropDownValue').val(selectedRequesterRoleValue);
+        });
+
+        // ----------------------------------------------------------------------------
+        // PriorityDropDown change
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_PriorityDropDown').change(function () {
+            FillProposedSolutionDateTextBox();
+        });
+
+        // *************************************************************************************
+        // On each page load (incl. postback) set data below
+        //SetRequesterRole();
+        SetTicketSolutionVisibility();
+        SetSupplierDetailInfo();
+        // ----------------------------------------------------------------------------
+        
+    }); // document ready end
+
+
+    //// (Re)Set RequesterRole if exists
+    //function SetRequesterRole()
+    //{
+    //    debugger;
+
+    //    var requesterRoleDropDownValue = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_HiddenRequesterRoleDropDownValue').val();
+
+    //    var valueExists = false;
+    //    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').each(function () {
+    //        if (this.value == requesterRoleDropDownValue) {
+    //            valueExists = true;
+    //            return false;
+    //        }
+    //    });
+
+    //    if (valueExists)
+    //    {
+    //        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').val(requesterRoleDropDownValue);
+    //    }
+    //}
+
+    // Set TicketSolution field visibility, depends on whether CloseTicketImmediately is checked or not
+    function SetTicketSolutionVisibility()
+    {
+        var closeTicketImmediatelyVisible = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_CloseTicketImmediately').is(":visible");
+        var closeImmediatelyChecked = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_CloseTicketImmediately').prop('checked');
+
+        if ((closeTicketImmediatelyVisible) && (closeImmediatelyChecked))
+        {
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionFieldPanel').show();
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionTextBox').prop('disabled', false);
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionTextBox').show();
+        }
+        else
+        {
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionFieldPanel').hide();
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionTextBox').hide();
+        }
+    }
+
+    // Set SupplierDetailInfo fields from selected supplier
+    function SetSupplierDetailInfo()
+    {
+        var hfSupplierValue = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_hfAutoComplete').val();
+        if ((typeof hfSupplierValue !== 'undefined') && (hfSupplierValue != ''))
+        {
+            var supplierIdValue = { 'supplierId': hfSupplierValue };
+
+            $.ajax({
+                type: 'POST',
+                url: autoCompleteServiceUrl + '/GetSupplierDetailInfo',
+                data: JSON.stringify(supplierIdValue),
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                success: function (resultData, status) {
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierBankAccountNumberTextBox').val(resultData.d[0]);
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierNameTextBox').val(resultData.d[1]);
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketCreditorNumberTextBox').val(resultData.d[2]);
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierEmailTextBox').val(resultData.d[3]);
+                    $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierPhoneNumberTextBox').val(resultData.d[4]);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('Error occured for getting data GetSupplierDetailInfo: ' + textStatus + ' ' + errorThrown);
+                }
+            });
+        }
+    }
+
+    // Fill ProposedSolutionDateTextBox from selected PriorityDropDown value
+    function FillProposedSolutionDateTextBox() {
+        var selectedTicketSolutionTermId = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_PriorityDropDown').val();
+        var param = { 'ticketSolutionTermId': selectedTicketSolutionTermId };
+
+        $.ajax({
+            type: 'POST',
+            url: autoCompleteServiceUrl + '/' + 'GetSolutionDateForPriority',
+            data: JSON.stringify(param),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function (resultData, status) {
+                $('#mainContent_tabContainer_InstructionPanel_TicketEditor_ProposedSolutionDateTextBox').text(resultData.d);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('Error occured for getting data GetSolutionDateForPriority: ' + textStatus + ' ' + errorThrown);
+            }
+        });
+    }
+
+    // --------------------------------------------------------------------------------------------------
+    // Generic function to fill a dropdown with data from a (json)service method
+    function FillDropDown(dropdownId, serviceMethodName, paramValue, emptyText, emptyvalue)
+    {
+        var param = { 'value' : paramValue };
+
+        $.ajax({
+            type: 'POST',
+            url: autoCompleteServiceUrl + '/' + serviceMethodName,
+            data: JSON.stringify(param),
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            success: function (resultData, status) {
+
+                if (resultData.d.length > 0) {
+                    var dropdownElement = $('#' + dropdownId);
+                    dropdownElement.empty();
+
+                    if ((typeof emptyText !== 'undefined') && (emptyText != '')) {
+                        dropdownElement.append($("<option></option>").val(emptyvalue).text(emptyText));
+                    }
+
+                    $.each(resultData.d, function () {
+                        var itemValue = this.split('|')[0];
+                        var itemText = this.split('|')[1];
+                        //*** filterColumn er nog bij...
+
+                        dropdownElement.append($("<option></option>").val(itemValue).text(itemText));
+                    });
+
+                    if (dropdownElement.has('option').length > 0)
+                    {
+                        dropdownElement.prop("selectedIndex", 0);
+                    }
+                }
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('Error occured for getting data FillDropDown: ' + textStatus + ' ' + errorThrown);
+            }
+        });
+    }
+
+    // Generic function for all AutoComplete controls to set text and value
+    function SetAutoCompleteTextAndValue(autoCompleteTextBoxElementId, text, value)
+    {
+        var autoCompleteTextBoxElem = $('#' + autoCompleteTextBoxElementId);
+        if (autoCompleteTextBoxElem != null)
+        {
+            autoCompleteTextBoxElem.val(text);
+
+            var autoCompleteHiddenId = autoCompleteTextBoxElementId.replace('_tbAutoComplete', '_hfAutoComplete');
+            var autoCompleteHiddenElem = $('#' + autoCompleteHiddenId);
+            if (autoCompleteHiddenElem != null)
+            {
+                autoCompleteHiddenElem.val(value);
+            }
+        }
+    }
+
+    // Clear all the ticket fields
+    function clearFields()
+    {
+        // Bank fields
+        SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_BankAutoCompleteRac_tbAutoComplete', '', '');
+
+        // Generic fields
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketTypeDropDown').prop('selectedIndex', 0);
+        SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterAutoCompleteRac_tbAutoComplete', '', '');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterRoleDropDown').prop('selectedIndex', 0);
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_RequesterPhoneTextBox').val('');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketChannelDropDown').prop('selectedIndex', 0);
+        SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_InitiatorAutoCompleteRac_tbAutoComplete', '', '');       
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSubjectInput_lblResult').text('-Selecteer-');       
+        SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_InstructionAutoCompleteRac_tbAutoComplete', '', '');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketInstructionUrlButton').attr('href', '');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketInstructionUrlButton').text('');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketTitleTextBox').val('');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketDescriptionTextBox').val('');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_TicketSolutionTextBox').val('');
+        $('#mainContent_tabContainer_InstructionPanel_TicketEditor_PriorityDropDown').prop('selectedIndex', 0);
+        FillProposedSolutionDateTextBox();
+
+        // Supplier ticket
+        var hfSupplierValue = $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_hfAutoComplete').val();
+        if ((typeof hfSupplierValue !== 'undefined') && (hfSupplierValue != '')) {
+            SetAutoCompleteTextAndValue('mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierIdAutoCompleteRac_tbAutoComplete', '', '');
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierBankAccountNumberTextBox').val('');
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierNameTextBox').val('');
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketCreditorNumberTextBox').val('');
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierEmailTextBox').val('');
+            $('#mainContent_tabContainer_InstructionPanel_TicketEditor_SupplierTicketSupplierPhoneNumberTextBox').val('');            
+        }
+    }
+
+
+</script>
+
+
+
+
+********************************************
+
+
+Imports Rabo.AocFlow.Model
+Imports Rabo.AocFlow.Business
+Imports Rabo.CRG.CRIS.BDS.Portal.Utilities
+Imports Rabo.AocFlow.Model.BusinessEntities
+Imports Rabo.GeneralV2.Model
+Imports Rabo.CRG.CRIS.BDS.Portal.Controls.HierarchicalData
+Imports System.Web.Services
+Imports System.Collections.Generic
+
+Public Class TicketEditor
+    Inherits System.Web.UI.UserControl
+
+    Private Const _timeStamp = "TicketTimestamp"
+    Private _editInstructionPageUrl As String = "~/Pages/EditInstruction.aspx?InstructionId={0}"
+    Private Shared ReadOnly _logger As ILogger = New Logger()
+
+    Private ReadOnly _commonService As CommonService = Nothing
+    Private ReadOnly _ticketService As TicketService = Nothing
+
+    Private _OtherRoleName As String = String.Empty
+
+    Public Event CloseTicketImmediateChanged As EventHandler(Of CloseTicketImmediateChangedEventArgs)
+
+    Public Sub New()
+        _commonService = Business.Services.CreateCommonService()
+        _ticketService = Business.Services.CreateTicketService()
+    End Sub
+
+    Private Property Ticket As BlTicket
+        Get
+            Return CType(ViewState("TicketEditor_Ticket"), BlTicket)
+        End Get
+        Set(value As BlTicket)
+            ViewState("TicketEditor_Ticket") = value
+        End Set
+    End Property
+
+    Private ReadOnly Property TicketService As TicketService
+        Get
+            Return RequestCache(Of TicketService).GetItem(Function() Business.Services.CreateTicketService())
+        End Get
+    End Property
+
+    Public ReadOnly Property EditInstructionPageUrl As String
+        Get
+            Return _editInstructionPageUrl
+        End Get
+    End Property
+
+    Public ReadOnly Property CloseImmediately As Boolean
+        Get
+            Return CloseTicketImmediately.Checked
+        End Get
+    End Property
+
+
+    Public ReadOnly Property OtherRoleId As String
+        Get
+            Return CType(RoleEnum.Other, Int32).ToString()
+        End Get
+    End Property
+
+    Public ReadOnly Property OtherRoleName As String
+        Get
+            If (String.IsNullOrEmpty(_OtherRoleName)) Then
+                Dim role = Business.Services.CreateCommonService().GetRole(RoleEnum.Other)
+                If (role IsNot Nothing) Then
+                    _OtherRoleName = role.Name
+                End If
+            End If
+
+            Return _OtherRoleName
+        End Get
+    End Property
+
+
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        TicketSolutionValidator.Enabled = True ' !!
+
+        If Not IsPostBack Then
+            TicketSolutionFieldPanel.Visible = True
+            TicketSolutionTextBox.Enabled = True
+        Else
+            ' Make sure correct items are loaded, and in viewstate. And correct selected value.
+            If (Request.Form("ctl00$mainContent$tabContainer$TicketPanel$TicketEditor$RequesterRoleDropDown") IsNot Nothing) Then
+                HiddenRequesterRoleDropDownValue.Value = Request.Form("ctl00$mainContent$tabContainer$TicketPanel$TicketEditor$RequesterRoleDropDown")
+            Else
+                HiddenRequesterRoleDropDownValue.Value = Request.Form("ctl00$mainContent$tabContainer$InstructionPanel$TicketEditor$RequesterRoleDropDown")
+            End If
+            FillAndSetRequesterRoleDropDown()
+
+            If (Ticket.TargetGroupId = TargetGroupEnum.Supplier) Then
+                TryLookupOtherSupplierData()
+            End If
+        End If
+
+        ' Supplier details are always readonly (filled when a supplier was selected by bank account number)
+        If (Ticket.TargetGroupId = TargetGroupEnum.Supplier) Then
+            SupplierTicketSupplierBankAccountNumberTextBox.ReadOnly = True
+            SupplierTicketSupplierNameTextBox.ReadOnly = True
+            SupplierTicketCreditorNumberTextBox.ReadOnly = True
+            SupplierTicketSupplierEmailTextBox.ReadOnly = True
+            SupplierTicketSupplierPhoneNumberTextBox.ReadOnly = True
+        End If
+
+    End Sub
+
+    Protected Sub Page_PreRender(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.PreRender
+        If (String.IsNullOrEmpty(HiddenRequesterRoleDropDownValue.Value)) Then
+            HiddenRequesterRoleDropDownValue.Value = RequesterRoleDropDown.SelectedValue
+        End If
+
+        If (String.IsNullOrEmpty(RequesterRoleDropDown.SelectedValue)) Then
+            If (RequesterRoleDropDown.Items.FindByValue(HiddenRequesterRoleDropDownValue.Value) IsNot Nothing) Then
+                RequesterRoleDropDown.SelectedValue = HiddenRequesterRoleDropDownValue.Value
+            End If
+        End If
+    End Sub
+
+    Private Sub FillSubjectTreeview()
+        Dim binding As New TreeNodeBinding()
+        binding.ValueField = "Id"
+        binding.TextField = "Name"
+        TicketSubjectInput.TreeView.DataBindings.Add(binding)
+
+        Dim subjectsTree As List(Of BlTreeNode) = GetSubjectsTree(Ticket.TicketSubjectId)
+        TicketSubjectInput.DefaultText = "-Selecteer-"
+        TicketSubjectInput.DataSource = New HierarchicalModelDataSource() With {.DataSource = subjectsTree}
+        TicketSubjectInput.DataBind()
+    End Sub
+
+    ' Create the Subjects Tree with recursion
+    Private Function GetSubjectsTree(Optional ticketSubjectId As Integer = 0) As List(Of BlTreeNode)
+
+        ' The hierarchy/tree of TreeNodes
+        Dim hierarchy As List(Of BlTreeNode) = New List(Of BlTreeNode)()
+
+        ' Flat list of TreeNodes
+        Dim sourceList As List(Of IdNameParentId) = _ticketService.GetTicketSubjects(Ticket.TargetGroupId, False, ticketSubjectId).ToList()
+
+        ' Take the root nodes out of the flat list, and create the tree with help of recursive function 'AddChildNodes'
+        If (sourceList.Count > 0) Then
+            Dim rootNodes As List(Of IdNameParentId) = sourceList.Where(Function(x) x.ParentId = Nothing).ToList()
+            For iRootNode As Integer = 0 To (rootNodes.Count - 1)
+                Dim rootNode As BlTreeNode = New BlTreeNode(rootNodes(iRootNode).Id, rootNodes(iRootNode).Name, Nothing)
+                hierarchy.Add(rootNode)
+                AddChildNodes(rootNode, sourceList)
+            Next
+        End If
+
+        ' Make sure you add the current/selected subjectId, so it can be selected in the control (prevents Exception if it is 'flagged as deleted')
+        If (ticketSubjectId > 0) Then
+            If (hierarchy.SingleOrDefault(Function(x) x.Id = ticketSubjectId.ToString()) Is Nothing) Then
+                Dim selectedSubjectSourceItem As IdNameParentId = sourceList.SingleOrDefault(Function(x) x.Id = ticketSubjectId.ToString())
+                If (selectedSubjectSourceItem IsNot Nothing) Then
+                    Dim selectedNode As BlTreeNode = New BlTreeNode(selectedSubjectSourceItem.Id, selectedSubjectSourceItem.Name, Nothing)
+                    hierarchy.Add(selectedNode)
+                End If
+            End If
+        End If
+
+        Return hierarchy
+    End Function
+
+    ' Recursive helper method for creating tree
+    Private Sub AddChildNodes(node As BlTreeNode, sourceList As IList(Of IdNameParentId))
+        Dim childNodes As IList(Of IdNameParentId) = sourceList.Where(Function(x) x.ParentId = node.Id).ToList()
+
+        For i As Integer = 0 To (childNodes.Count - 1)
+            Dim childNode As BlTreeNode = New BlTreeNode(childNodes(i).Id, childNodes(i).Name, Nothing)
+            node.Children.Add(childNode)
+            AddChildNodes(childNode, sourceList)
+        Next
+    End Sub
+
+
+    ' Lookup other data of supplier from value in SupplierBankAccountAutoComplete control
+    Private Sub TryLookupOtherSupplierData()
+        If (Not String.IsNullOrEmpty(Me.SupplierTicketSupplierIdAutoComplete.Value)) Then
+            Dim supplierDetailInfo As BlSupplierDetailInfo = TicketService.GetSupplierDetailInfo(CInt(Me.SupplierTicketSupplierIdAutoComplete.Value))
+            If (supplierDetailInfo IsNot Nothing) Then
+                SupplierTicketSupplierBankAccountNumberTextBox.Text = supplierDetailInfo.BankAccountNumber
+                SupplierTicketSupplierNameTextBox.Text = supplierDetailInfo.Name
+                SupplierTicketCreditorNumberTextBox.Text = supplierDetailInfo.CreditorNumber
+                SupplierTicketSupplierEmailTextBox.Text = supplierDetailInfo.Email
+                SupplierTicketSupplierPhoneNumberTextBox.Text = supplierDetailInfo.PhoneNumber
+            End If
+        Else
+            SupplierTicketSupplierBankAccountNumberTextBox.Text = String.Empty
+            SupplierTicketSupplierNameTextBox.Text = String.Empty
+            SupplierTicketCreditorNumberTextBox.Text = String.Empty
+            SupplierTicketSupplierEmailTextBox.Text = String.Empty
+            SupplierTicketSupplierPhoneNumberTextBox.Text = String.Empty
+        End If
+    End Sub
+
+    Public Sub LoadTicketIntoControl(ticket As BlTicket)
+        If ticket Is Nothing Then Throw New ArgumentNullException("Ticket")
+        Trace.Write(String.Format("LoadTicketIntoControl, TicketCode: {0}, TicketId: {1}", ticket.Code, ticket.Id))
+        Me.Ticket = ticket
+
+        Session(_timeStamp) = ticket.RowVers
+
+        ' Set specific targetgroup values into control
+        Select Case ticket.TargetGroupId
+            Case TargetGroupEnum.LocalBank
+                BankAutoComplete.SetBank(DirectCast(ticket, BlLocalBankTicket).BankId)
+                InstructionAutoComplete.SetInstruction(UserHelper.User, DirectCast(ticket, BlLocalBankTicket).InstructionId)
+                SetInstructionUrl(DirectCast(ticket, BlLocalBankTicket).InstructionId)
+
+            Case TargetGroupEnum.RI_RN
+                ' TODO: Rn / Ri logic for settings fields
+
+            Case TargetGroupEnum.Supplier
+                Dim supplierId As Integer = DirectCast(ticket, BlSupplierTicket).SupplierId
+                Dim supplierDetailInfo As BlSupplierDetailInfo = _ticketService.GetSupplierDetailInfo(supplierId)
+                If (supplierDetailInfo IsNot Nothing) Then
+                    SupplierTicketSupplierIdAutoComplete.SetSupplier(supplierDetailInfo.Id)
+                    SupplierTicketSupplierBankAccountNumberTextBox.Text = supplierDetailInfo.BankAccountNumber
+                    SupplierTicketSupplierNameTextBox.Text = supplierDetailInfo.Name
+                    SupplierTicketCreditorNumberTextBox.Text = supplierDetailInfo.CreditorNumber
+                    SupplierTicketSupplierEmailTextBox.Text = supplierDetailInfo.Email
+                    SupplierTicketSupplierPhoneNumberTextBox.Text = supplierDetailInfo.PhoneNumber
+                End If
+
+        End Select
+
+        ' Set generic targetgroup values into control
+        FillTicketTypeDropDown()
+        TicketTypeDropDown.SetValue(ticket.TicketTypeId)
+        FillRequesterRoleDropDown(ticket.RequesterId)
+
+        If Not (UserHelper.User.IsInRole(RoleEnum.ServiceDesk) AndAlso ticket.StatusId = TicketStatusEnum.Creating) Then
+            RequesterAutoComplete.SetApplicationUser(ticket.RequesterId)
+            RequesterRoleDropDown.SetValue(ticket.RequesterRoleId, AddressOf InstructionDataSource.GetRole)
+        End If
+
+        HiddenRequesterRoleDropDownValue.Value = RequesterRoleDropDown.SelectedValue
+        RequesterPhoneTextBox.Text = ticket.RequesterPhoneNumber
+
+        FillTicketChannelDropDown()
+        TicketChannelDropDown.SetValue(ticket.TicketChannelId)
+
+        InitiatorAutoComplete.SetApplicationUser(ticket.InitiatorUserId)
+        FillInitiatorRoleDropDown()
+        InitiatorRoleDropDown.SetValue(ticket.InitiatorRoleId, AddressOf InstructionDataSource.GetRole)
+
+        TicketStatusDropDown.DataBind()
+        TicketStatusDropDown.SetValue(ticket.StatusId)
+
+        FillSubjectTreeview()
+
+        If (ticket.TicketSubjectId > 0) Then
+            Try
+                TicketSubjectInput.SelectByValue(ticket.TicketSubjectId.ToString())
+            Catch ex As InvalidOperationException
+                ' Should normally never come here anymore, because the Id of the Ticket should always be present in the tree
+                '
+                'subject is deleted, get and set the subjects and this subject in the treeview
+                Trace.Write("treeview subject is deleted, get and set the subjects and this subject in the treeview")
+                Dim listOfSubjectsToInclude = {ticket.TicketSubjectId}
+                Trace.Write(String.Format("listOfSubjectsToInclude count: {0}", listOfSubjectsToInclude.Count().ToString()))
+                Trace.Write(String.Format("Ticket Subject Id: {0}", ticket.TicketSubjectId))
+                FillSubjectTreeview()
+                TicketSubjectInput.SelectByValue(ticket.TicketSubjectId.ToString())
+            End Try
+        End If
+
+        ' Supplier ticket field
+        If (ticket.TargetGroupId = TargetGroupEnum.Supplier) Then
+            Dim selectedSubSubjectId As Integer = DirectCast(ticket, BlSupplierTicket).TicketSubSubjectId
+            FillSubSubjectDropDown(selectedSubSubjectId)
+            SupplierTicketSubSubjectRaboDropDownList.SetValue(selectedSubSubjectId)
+        End If
+
+        TicketTitleTextBox.Text = ticket.Title
+        TicketDescriptionTextBox.Text = ticket.Description
+        TicketSolutionTextBox.Text = ticket.Solution
+
+        HandlerAutoComplete.SetApplicationUser(ticket.HandlerId)
+
+        PriorityDropDown.DataBind()
+        PriorityDropDown.SetValue(ticket.TicketSolutionTermId)
+
+        ProposedSolutionDateTextBox.Value = ticket.ProposedSolutionDate
+        SolutionDateTextBox.Value = ticket.SolutionDate
+
+    End Sub
+
+    Private Sub SetInstructionUrl(instructionId As Integer?)
+        If (instructionId.HasValue) Then
+            TicketInstructionUrlButton.Text = instructionId.Value.ToString()
+            TicketInstructionUrlButton.NavigateUrl = String.Format(_editInstructionPageUrl, instructionId.Value)
+        Else
+            TicketInstructionUrlButton.Text = String.Empty
+            TicketInstructionUrlButton.NavigateUrl = String.Empty
+        End If
+    End Sub
+
+    'Private Function GetRequesterUserId() As Integer?
+    '    Try
+    '        If Not String.IsNullOrEmpty(RequesterAutoComplete.Value) Then
+    '            Dim userid = 0
+    '            If Integer.TryParse(RequesterAutoComplete.Value, userid) Then
+    '                Return userid
+    '            Else
+    '                'Add user if not exist
+    '                Dim user = _commonService.GetApplicationUserAddWhenNotFound(RequesterAutoComplete.Value, RequesterAutoComplete.Text)
+    '                Return user.Id
+    '            End If
+    '        End If
+    '    Catch ex As AocCommonException
+    '        Dim errorNumber = _logger.LogError(ex)
+    '        AocException.Redirect(HttpContext.Current.Response, errorNumber, ex.Message)
+    '    End Try
+    '    Return Nothing
+    'End Function
+
+    Public Sub UpdateTicketWithDataFromControl(ticket As BlTicket)
+        If ticket Is Nothing Then Throw New ArgumentNullException("ticket")
+
+        Select Case ticket.TargetGroupId
+            Case TargetGroupEnum.LocalBank
+                ' Local bank ticket specific fields
+                DirectCast(ticket, BlLocalBankTicket).BankId = CInt(BankAutoComplete.Value)
+
+                If (Not String.IsNullOrEmpty(InstructionAutoComplete.Value)) Then
+                    DirectCast(ticket, BlLocalBankTicket).InstructionId = CInt(InstructionAutoComplete.Value)
+                Else
+                    DirectCast(ticket, BlLocalBankTicket).InstructionId = Nothing
+                End If
+
+            Case TargetGroupEnum.RI_RN
+                ' ...
+
+            Case TargetGroupEnum.Supplier
+                ' Supplier ticket specific fields
+                DirectCast(ticket, BlSupplierTicket).SupplierId = CInt(SupplierTicketSupplierIdAutoComplete.Value)
+                DirectCast(ticket, BlSupplierTicket).TicketSubSubjectId = CInt(SupplierTicketSubSubjectRaboDropDownList.SelectedValue)
+        End Select
+
+        ' Generic ticket fields
+        ticket.TicketTypeId = CInt(TicketTypeDropDown.SelectedValue)
+        ticket.RequesterId = GetRequesterUserId()
+
+        If (Not String.IsNullOrEmpty(RequesterRoleDropDown.SelectedValue)) Then
+            ticket.RequesterRoleId = CInt(RequesterRoleDropDown.SelectedValue)
+        Else
+            If (UserHelper.User.IsInRole(RoleEnum.ServiceDesk)) Then
+                ticket.RequesterRoleId = RoleEnum.ServiceDesk
+            End If
+        End If
+        If (ticket.RequesterRoleId = 0) Then
+            Throw New Exception("Ticket RequesterRoleId not set.")
+        End If
+
+        ticket.RequesterPhoneNumber = RequesterPhoneTextBox.Text
+        ticket.TicketChannelId = CInt(TicketChannelDropDown.SelectedValue)
+
+        ' If '-Selecteer-' (value 0) is selected, then the 2nd item value (first value which isn't 0) should be looked for to be set
+        ' This is the case when a role is chosen other than ServiceDesk or 2e lijn support (like e.g. rol 'Bedrijfsmanagement') because the dropdown is invisible then.
+        If (ticket.TicketChannelId = 0) Then
+
+            ' Look first form item that is not 0.
+            If (TicketChannelDropDown.Items.Count > 1) Then
+                _logger.LogInfo(String.Format("TicketChannelId is 0. Next item will be set: {0}.", TicketChannelDropDown.Items(1).Value))
+                ticket.TicketChannelId = CInt(TicketChannelDropDown.Items(1).Value)
+            Else
+                _logger.LogInfo("No more items in ticketchannel dropdown.")
+            End If
+
+            ' Set default ticket channel if available (depending on role)
+            If UserHelper.User.IsLocalBankEmployee Then
+                ticket.TicketChannelId = TicketChannelEnum.Tool
+            Else
+                Dim defaultChannel As TicketChannel = _ticketService.GetDefaultTicketChannel()
+                If (defaultChannel IsNot Nothing) Then
+                    ticket.TicketChannelId = defaultChannel.Id
+                End If
+            End If
+        End If
+
+        ticket.InitiatorUserId = Conversions.ToInteger(InitiatorAutoComplete.Value)
+        ticket.InitiatorRoleId = CInt(InitiatorRoleDropDown.SelectedValue)
+        ticket.Title = TicketTitleTextBox.Text
+        ticket.Description = TicketDescriptionTextBox.Text
+        ticket.Solution = TicketSolutionTextBox.Text
+        If CloseTicketImmediately.Checked Then
+            ticket.HandlerId = Conversions.ToInteger(InitiatorAutoComplete.Value)
+        Else
+            ticket.HandlerId = Conversions.ToNullableInteger(HandlerAutoComplete.Value)
+        End If
+        If (Not ticket.HandlerId.HasValue) Then
+            If (ticket.TargetGroupId = TargetGroupEnum.Supplier) Then
+                ticket.HandlerId = UserHelper.User.Id  ' Do this only for supplier?
+            End If
+        End If
+
+        ticket.TicketSolutionTermId = CInt(PriorityDropDown.SelectedValue)
+        ticket.ProposedSolutionDate = ProposedSolutionDateTextBox.Value.Value
+        ticket.RowVers = CType(Session(_timeStamp), Byte())
+        If TicketSubjectInput.SelectedNode IsNot Nothing Then
+            ticket.TicketSubjectId = CInt(TicketSubjectInput.SelectedValue)
+        End If
+
+        ' Log ticket info
+        Dim logTicketInfoLine As String = String.Format("Ticket to be saved info: UserId:{0}. Username:{1}. UserRoles:{2}. TicketTypeId:{3}. RequesterId:{4}. HandlerId:{5}. InitiatorUserId:{6}. InitiatorRoleId:{7}. Title:{8}. TicketChannelId:{9}.",
+                                        UserHelper.User.Id,
+                                        UserHelper.User.Name,
+                                        String.Join(",", UserHelper.User.Roles.Cast(Of Integer)()),
+                                        ticket.TicketTypeId,
+                                        If(ticket.RequesterId.HasValue, ticket.RequesterId.Value.ToString(), String.Empty),
+                                        If(ticket.HandlerId.HasValue, ticket.HandlerId.Value.ToString(), String.Empty),
+                                        ticket.InitiatorUserId,
+                                        ticket.InitiatorRoleId,
+                                        ticket.Title,
+                                        ticket.TicketChannelId
+                                      )
+        _logger.LogInfo(logTicketInfoLine)
+    End Sub
+
+    Public Sub FillRequesterRoleDropDown(requesterUserId As Integer?)
+
+        RequesterRoleDropDown.SelectedIndex = -1
+        RequesterRoleDropDown.Items.Clear()
+
+        If (requesterUserId.HasValue) Then
+            Dim requesterRoles = _commonService.GetUserRolesForTicket(requesterUserId.Value)
+            For Each role In requesterRoles
+                RequesterRoleDropDown.Items.Add(New ListItem(role.Name, role.Id.ToString()))
+            Next
+        End If
+
+        If (RequesterRoleDropDown.Items.FindByValue("") Is Nothing) Then
+            RequesterRoleDropDown.Items.Insert(0, (New ListItem("-Selecteer-", "")))
+        End If
+    End Sub
+
+    Private Function GetRequesterUserId() As Integer
+        Dim hiddenfieldRequesterValue = Me.Context.Request.Form("ctl00$mainContent$tabContainer$InstructionPanel$TicketEditor$RequesterAutoCompleteRac$hfAutoComplete")
+        If (String.IsNullOrEmpty(hiddenfieldRequesterValue)) Then
+            hiddenfieldRequesterValue = Me.RequesterAutoComplete.Value
+        End If
+
+        Dim requesterUserId As Integer = 0
+        Integer.TryParse(hiddenfieldRequesterValue, requesterUserId)
+        If (requesterUserId = 0) Then
+            requesterUserId = UserHelper.User.Id
+        End If
+
+        Return requesterUserId
+    End Function
+
+    Public Sub FillInitiatorRoleDropDown()
+        With InitiatorRoleDropDown
+            .Items.Clear()
+            .DataBind()
+            .Items.Insert(0, (New ListItem("-Selecteer-", "")))
+        End With
+    End Sub
+
+    Public Sub FillTicketTypeDropDown()
+        With TicketTypeDropDown
+            .Items.Clear()
+            .DataBind()
+            .Items.Insert(0, (New ListItem("-Selecteer-", "")))
+        End With
+    End Sub
+
+    Public Sub FillTicketChannelDropDown()
+
+        Dim ticketChannels = _ticketService.GetTicketChannels(Nothing, Ticket.TargetGroupId).ToList()
+        ticketChannels.Insert(0, New TicketChannel() With {.Id = 0, .Name = "-Selecteer-"})
+
+        TicketChannelDropDown.DataSource = ticketChannels
+        TicketChannelDropDown.DataValueField = "Id"
+        TicketChannelDropDown.DataTextField = "Name"
+        TicketChannelDropDown.DataBind()
+
+        If (Not UserHelper.User.IsLocalBankEmployee) AndAlso Ticket.StatusId = TicketStatusEnum.Creating Then
+            TicketChannelDropDown.Items.Remove(TicketChannelDropDown.Items.FindByValue(TicketChannelEnum.Tool))
+        End If
+    End Sub
+
+    Public Sub FillSubSubjectDropDown(selectedSubSubjectId As Integer)
+        Dim parentTicketSubjectId As Integer? = If((TicketSubjectInput.SelectedNode IsNot Nothing), CInt(TicketSubjectInput.SelectedValue), 0)
+        Dim ticketSubSubjects As List(Of IdNameParentId) = _ticketService.GetTicketSubSubjects(parentTicketSubjectId, selectedSubSubjectId).ToList()
+
+        SupplierTicketSubSubjectRaboDropDownList.DataSource = ticketSubSubjects
+        SupplierTicketSubSubjectRaboDropDownList.DataValueField = "Id"
+        SupplierTicketSubSubjectRaboDropDownList.DataTextField = "Name"
+        SupplierTicketSubSubjectRaboDropDownList.DataBind()
+    End Sub
+
+    Private Function GetSolutionDateForPriority(baseDate As Date, ticketSolutionTermId As Integer) As Date
+        Return TicketService.GetSolutionDateForPriority(baseDate, ticketSolutionTermId)
+    End Function
+
+    Private Sub PriorityDropDown_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PriorityDropDown.SelectedIndexChanged
+        ProposedSolutionDateTextBox.Value = GetSolutionDateForPriority(Me.Ticket.CreatedAt, CInt(PriorityDropDown.SelectedValue))
+    End Sub
+
+    Private Sub TicketTypeDataSource_Selecting(sender As Object, e As ObjectDataSourceSelectingEventArgs) Handles TicketTypeDataSource.Selecting
+        If (Ticket IsNot Nothing) Then
+            e.InputParameters("includeId") = Ticket.TicketTypeId
+        End If
+    End Sub
+
+    Private Sub TicketPriorityDataSource_Selecting(sender As Object, e As ObjectDataSourceSelectingEventArgs) Handles TicketPriorityDataSource.Selecting
+        If (Ticket IsNot Nothing) Then
+            e.InputParameters("includeId") = Ticket.TicketSolutionTermId
+        End If
+    End Sub
+
+    Private Sub InstructionAutoComplete_Init(sender As Object, e As EventArgs) Handles InstructionAutoComplete.Init
+        InstructionAutoComplete.ContextKey = CStr(UserHelper.User.Id)
+    End Sub
+
+    Private Sub InstructionAutoComplete_OnValueChanged(sender As Object, e As EventArgs) Handles InstructionAutoComplete.OnValueChanged
+        SetInstructionUrl(Conversions.ToNullableInteger(InstructionAutoComplete.Value))
+    End Sub
+
+    Private Sub RequesterAutoComplete_Init(sender As Object, e As EventArgs) Handles RequesterAutoComplete.Init
+        SetRequesterContextKey()
+    End Sub
+
+    Private Sub BankAutoComplete_OnValueChanged(sender As Object, e As EventArgs) Handles BankAutoComplete.OnValueChanged
+        RequesterAutoComplete.SetValue("", "")
+        SetRequesterContextKey()
+    End Sub
+
+    Private Sub RequesterAutoComplete_OnValueChanged(sender As Object, e As EventArgs) Handles RequesterAutoComplete.OnValueChanged
+        'If Not CloseTicketImmediately.Checked Then
+        '    FillRequesterRoleDropDown()
+        'End If
+    End Sub
+
+    Private Sub RequesterRoleDataSource_Selecting(sender As Object, e As ObjectDataSourceSelectingEventArgs) Handles RequesterRoleDataSource.Selecting
+        If UserHelper.User.IsInRole(RoleEnum.ServiceDesk) AndAlso Not String.IsNullOrEmpty(RequesterAutoComplete.Value) Then
+            e.InputParameters("userId") = RequesterAutoComplete.Value
+        End If
+    End Sub
+
+    ' Commented out to be consistent that the Requester Autocomplete cannot always be filtered by bank(code).
+    ' Later, when autocomplete control can be rewritten, this problem can be solved.
+    Private Sub SetRequesterContextKey()
+        'Dim bankCode = String.Empty
+
+        'If Not String.IsNullOrEmpty(BankAutoComplete.Value) Then
+        '    Dim bankId = Convert.ToInt32(BankAutoComplete.Value)
+        '    Dim bank = _commonService.GetBank(bankId)
+        '    bankCode = bank.Code
+        'End If
+
+        '' Filter requester users on bank(code), or do not filter and just get all users
+        '' "|False"      No bank selected  (default value set in ascx)
+        '' "1127|False"  Bank(code) selected
+        'RequesterAutoComplete.ContextKey = String.Format("{0}|{1}", bankCode, CloseTicketImmediately.Checked)
+    End Sub
+
+    Private Sub CloseTicketImmediately_CheckedChanged(sender As Object, e As EventArgs) Handles CloseTicketImmediately.CheckedChanged
+        ChangeTicketType(CloseTicketImmediately.Checked)
+    End Sub
+
+    Private Sub ChangeTicketType(closeImmediately As Boolean)
+        SetRequesterContextKey()
+
+        'ClearFields()  ' Keep all fields that were already filled in
+        If closeImmediately Then
+            RequesterRoleDropDown.Items.Clear()
+            RequesterRoleDropDown.SetValue(RoleEnum.Other, AddressOf InstructionDataSource.GetRole)
+            HiddenRequesterRoleDropDownValue.Value = Convert.ToInt32(RoleEnum.Other).ToString()
+            FillAndSetRequesterRoleDropDown()
+        Else
+            FillAndSetRequesterRoleDropDown()
+        End If
+
+        TicketSolutionFieldPanel.Visible = closeImmediately
+        TicketSolutionTextBox.Enabled = closeImmediately
+
+        Dim closeTicketImmediateChangedEventArgs As New CloseTicketImmediateChangedEventArgs() With {
+          .CloseTicketImmediately = CloseTicketImmediately.Checked
+        }
+        RaiseEvent CloseTicketImmediateChanged(Me, closeTicketImmediateChangedEventArgs)
+    End Sub
+
+    Private Sub ClearFields()
+        BankAutoComplete.Attributes.Clear()
+        BankAutoComplete.SetValue(String.Empty, String.Empty)
+        TicketTypeDropDown.SelectedIndex = -1
+        RequesterAutoComplete.Attributes.Clear()
+        RequesterAutoComplete.SetValue(String.Empty, String.Empty)
+        RequesterRoleDropDown.Items.Clear()
+        RequesterPhoneTextBox.Text = String.Empty
+        TicketChannelDropDown.SelectedIndex = -1
+        InitiatorAutoComplete.Attributes.Clear()
+        RequesterAutoComplete.SetValue(String.Empty, String.Empty)
+        InitiatorRoleDropDown.SelectedIndex = -1
+        TicketStatusDropDown.SelectedIndex = -1
+        TicketSubjectInput.Attributes.Clear()
+        InstructionAutoComplete.Attributes.Clear()
+        InstructionAutoComplete.SetValue(String.Empty, String.Empty)
+        TicketTitleTextBox.Text = String.Empty
+        TicketDescriptionTextBox.Text = String.Empty
+        TicketSolutionTextBox.Text = String.Empty
+        HandlerAutoComplete.Attributes.Clear()
+        InstructionAutoComplete.SetValue(String.Empty, String.Empty)
+        PriorityDropDown.SelectedIndex = -1
+        ProposedSolutionDateTextBox.Text = String.Empty
+
+        ' Supplier tickets
+        SupplierTicketSupplierIdAutoComplete.SetValue(String.Empty, String.Empty)
+        SupplierTicketSupplierBankAccountNumberTextBox.Text = ""
+        SupplierTicketSupplierNameTextBox.Text = ""
+        SupplierTicketCreditorNumberTextBox.Text = ""
+        SupplierTicketSupplierEmailTextBox.Text = ""
+        SupplierTicketSupplierPhoneNumberTextBox.Text = ""
+        Me.SupplierTicketSubSubjectRaboDropDownList.SelectedIndex = -1
+
+        LoadTicketIntoControl(Ticket)
+    End Sub
+
+    Protected Sub TicketSubjectInput_SelectionChanged(sender As Object, e As EventArgs)
+        'Me.HiddenRequesterRoleDropDownValue.Value = RequesterAutoComplete.Value
+        FillAndSetRequesterRoleDropDown()
+
+        If (Ticket.TargetGroupId = TargetGroupEnum.Supplier) Then
+            Dim selectedSubSubjectId As Integer = DirectCast(Ticket, BlSupplierTicket).TicketSubSubjectId
+            FillSubSubjectDropDown(selectedSubSubjectId)
+        End If
+    End Sub
+
+    ' Refill roles dropdown, because viewstate can be lost at postback when clientside filled
+    Private Sub FillAndSetRequesterRoleDropDown()
+        Dim requesterUserId As Integer = GetRequesterUserId()
+        FillRequesterRoleDropDown(requesterUserId)
+
+        If (String.IsNullOrEmpty(Me.RequesterRoleDropDown.SelectedValue)) Then
+            If (Not String.IsNullOrEmpty(Me.HiddenRequesterRoleDropDownValue.Value)) Then
+                If (Me.RequesterRoleDropDown.Items.FindByValue(Me.HiddenRequesterRoleDropDownValue.Value) IsNot Nothing) Then
+                    Me.RequesterRoleDropDown.SelectedValue = Me.HiddenRequesterRoleDropDownValue.Value
+                Else
+                    If (Me.HiddenRequesterRoleDropDownValue.Value = OtherRoleId) Then
+                        Me.RequesterRoleDropDown.Items.Add(New ListItem(OtherRoleName, OtherRoleId))
+                        Me.RequesterRoleDropDown.SelectedValue = OtherRoleId
+                    End If
+                End If
+            End If
+        End If
+    End Sub
+
+
+End Class
